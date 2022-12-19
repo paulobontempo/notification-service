@@ -1,32 +1,43 @@
-import { Notification } from 'src/application/entities/notification';
-import { NotificationsRepository } from 'src/application/repositories/notifications-repository';
+import { Notification } from '@application/entities/notification';
+import { NotificationsRepository } from '@application/repositories/notifications-repository';
 
-export class InMemoryNotificationRepository implements NotificationsRepository {
-  public notifications: Notification[] = [];
-
-  async findById(notificationId: string): Promise<Notification> {
+export class InMemoryNotificationsRepository
+  implements NotificationsRepository
+{
+  async findById(notificationId: string): Promise<Notification | null> {
     const notification = this.notifications.find(
-      (item) => item.id === notificationId
+      (item) => item.id == notificationId,
     );
 
-    if (!notification) {
-      return null;
-    }
+    if (!notification) return null;
 
     return notification;
   }
+
+  async findManyByRecipientId(recipientId: string): Promise<Notification[]> {
+    return this.notifications.filter(
+      (notification) => notification.recipientId == recipientId,
+    );
+  }
+
+  async countManyByRecipientId(recipientId: string): Promise<number> {
+    return this.notifications.filter(
+      (notification) => notification.recipientId == recipientId,
+    ).length;
+  }
+
   async save(notification: Notification): Promise<void> {
     const notificationIndex = this.notifications.findIndex(
-      (item) => item.id === notification.id
-    )
+      (item) => item.id === notification.id,
+    );
 
-    if (notificationIndex) {
+    if (notificationIndex >= 0) {
       this.notifications[notificationIndex] = notification;
     }
   }
+  public notifications: Notification[] = [];
 
   async create(notification: Notification) {
-    console.log(notification);
     this.notifications.push(notification);
   }
 }

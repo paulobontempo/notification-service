@@ -1,5 +1,4 @@
 import { randomUUID } from 'crypto';
-import { StringifyOptions } from 'querystring';
 import { Replace } from 'src/helpers/Replace';
 import { Content } from './content';
 
@@ -8,6 +7,7 @@ export interface NotificationProps {
   content: Content;
   category: string;
   readAt?: Date | null;
+  cancelAt?: Date | null;
   createdAt: Date;
 }
 
@@ -15,7 +15,10 @@ export class Notification {
   private props: NotificationProps;
   private _id: string;
 
-  constructor(props: Replace<NotificationProps, { createdAt?: Date }>) {
+  constructor(
+    props: Replace<NotificationProps, { createdAt?: Date }>,
+    id?: string,
+  ) {
     this._id = randomUUID();
     this.props = {
       ...props,
@@ -57,6 +60,14 @@ export class Notification {
 
   public get readAt(): Date | null | undefined {
     return this.props.readAt;
+  }
+
+  public cancel() {
+    this.props.cancelAt =  new Date();
+  }
+
+  public get cancelAt(): Date | null | undefined {
+    return this.props.cancelAt;
   }
 
   public get createdAt(): Date {

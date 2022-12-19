@@ -1,48 +1,34 @@
-import { Notification } from '../../application/entities/notification';
-import { InMemoryNotificationRepository } from '../../../test/repositories/in-memory-notifications-repository';
+import { NotificationNotFound } from './errors/notification-not-found';
+import { InMemoryNotificationsRepository } from '@test/repositories/in-memory-notifications-repository';
 import { CancelNotification } from './cancel-notification';
-import { SendNotification } from './send-notification';
-import { Content } from '../../application/entities/content';
-import { NotificationNotFound } from '../../application/use-cases/errors/notification-not-found';
+import { makeNotification } from '@test/factories/notification-factory';
 
-describe('Cancel Notification', () => {
-  test('It should be able to cancel a notification', async () => {
-    const inMemoryNotificationRepository = new InMemoryNotificationRepository();
-    const cancelNotification = new CancelNotification(
-      inMemoryNotificationRepository,
-    );
+describe('Cancel notification', () => {
+  it('shoud be able to cancel a existing notification', async () => {
+    const notificationsRepository = new InMemoryNotificationsRepository();
+    const cancelNotification = new CancelNotification(notificationsRepository);
 
-    const notification = new Notification({
-      category: 'Social',
-      content: new Content('Nova solicitação de amizade'),
-      recipientId: 'Example-recipient-id',
-    })
+    const notification = makeNotification();
 
-    await inMemoryNotificationRepository.create(notification);
+    await notificationsRepository.create(notification);
 
     await cancelNotification.execute({
       notificationId: notification.id,
-    })
-    
-    expect(inMemoryNotificationRepository.notifications[0].cancelAt).toEqual(
+    });
+
+    expect(notificationsRepository.notifications[0].cancelAt).toEqual(
       expect.any(Date),
     );
   });
 
-  test('It should NOT be able to cancel a notification', async () => {
-    const inMemoryNotificationRepository = new InMemoryNotificationRepository();
-    const cancelNotification = new CancelNotification(
-      inMemoryNotificationRepository,
-    );
+  it('shoud not be able to cancel a non existing notification', async () => {
+    const notificationsRepository = new InMemoryNotificationsRepository();
+    const cancelNotification = new CancelNotification(notificationsRepository);
 
-    await cancelNotification.execute({
-      notificationId: 'not-existent-notification-id',
-    })
-    
     expect(() => {
       return cancelNotification.execute({
-        notificationId: 'not-existent-notification-id',
-      })
-    }).rejects.toThrow(NotificationNotFound)
+        notificationId: 'fake-notification-id',
+      });
+    }).rejects.toThrow(NotificationNotFound);
   });
 });

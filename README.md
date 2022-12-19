@@ -1,6 +1,6 @@
-# Simple rest api using only Node
+# Simple rest api with use cases layer
 
-Practicing concepts of software design with use-cases application layer! 🚀
+Simple API using software design with use-cases application layer
 
 ## Getting Started
 
